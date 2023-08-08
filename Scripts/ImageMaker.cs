@@ -1,4 +1,6 @@
+using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using LDtkUnity;
@@ -8,11 +10,13 @@ namespace WorldImageMerger
     public class ImageMaker
     {
         public string ProjectPath;
+        public string ProjectDir;
         public string ProjectName;
 
         public ImageMaker(string projectPath)
         {
             ProjectPath = projectPath;
+            ProjectDir = Path.GetDirectoryName(projectPath);
             ProjectName = Path.GetFileNameWithoutExtension(projectPath);
         }
         
@@ -44,6 +48,8 @@ namespace WorldImageMerger
 
         public void CreateWorldImage(World world)
         {
+            Console.WriteLine($"Creating world {world.Identifier}");
+            
             Level[] levels = world.Levels;
             
             Rectangle worldRect = new Rectangle
@@ -77,14 +83,21 @@ namespace WorldImageMerger
             //Bitmap lvlImg = 
 
 
-            string writePath = Path.GetDirectoryName(ProjectPath) + '/' + world.Identifier + ".png";
+            string writePath = ProjectDir + '/' + world.Identifier + ".png";
             
-            map.Save(writePath);
+            Console.WriteLine($"Writing world image to {writePath}");
+            map.Save(writePath, ImageFormat.Png);
         }
 
         public Bitmap LoadLevelImage(Level lvl)
         {
             string path = Path.Combine(ProjectPath, ProjectName, "png") + lvl.Identifier + ".png";
+
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException($"Didn't find image file at {path}");
+            }
+            Console.WriteLine($"Reading world image {path}");
             return new Bitmap(path);
         }
     }
