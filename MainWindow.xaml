@@ -11,15 +11,29 @@
         
         <StackPanel>
             
-            
             <StackPanel Orientation="Horizontal">
                 
+                <Button 
+                    x:Name = "PickButton" 
+                    Width="60px"
+                    Cursor="Hand">
+                    Choose
+                </Button>
                 <Label>Pick the path of the .ldtk project</Label>
-                <Button Width="60px">Choose</Button>
-                
-                
                 
             </StackPanel>
+            
+            <StackPanel Orientation="Horizontal">
+            <Button 
+                x:Name = "ExportButton" 
+                Width="60px"
+                Cursor="Hand">
+                Export
+            </Button>
+            <Label x:Name="Path"></Label>
+            </StackPanel>
+            
+            
         </StackPanel>
         
         
