@@ -18,10 +18,10 @@ namespace WorldImageMerger
         
         public void MakeTheImage(LdtkJson json)
         {
-            //check if there's no world. if not, make a dummy world
-            
-            
-            //var worlds = GetWorlds()
+            World[] worlds = GetWorlds(json);
+
+            World first = worlds.First();
+            CreateWorldImage(first);
         }
 
         public World[] GetWorlds(LdtkJson json)
@@ -46,27 +46,46 @@ namespace WorldImageMerger
         {
             Level[] levels = world.Levels;
             
-            
-
-            //
-            
-            //Bitmap lvlImg = 
-            
-            Rectangle rect = new Rectangle
+            Rectangle worldRect = new Rectangle
             {
-                X = levels.Min(p => p.WorldX),
-                Y = levels.Max(p => p.WorldY),
+                X = levels.Min(lvl => lvl.WorldX),
+                Y = levels.Max(lvl => lvl.WorldY),
                 Width = levels.Max(lvl => lvl.WorldX + lvl.PxWid),
                 Height = levels.Max(lvl => lvl.WorldY + lvl.PxHei)
             };
+            Point relOffset = worldRect.Location;
+            relOffset.X = -relOffset.X;
+            relOffset.Y = -relOffset.Y;
 
-            Bitmap map = new Bitmap(rect.Width - rect.X, rect.Height - rect.Y);
+            
+            Bitmap map = new Bitmap(worldRect.Width, worldRect.Height);
+
+            foreach (Level lvl in levels)
+            {
+                Bitmap image = LoadLevelImage(lvl);
+                for (int x = 0; x < image.Width; x++)
+                {
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        Color px = image.GetPixel(x, y);
+                        map.SetPixel(lvl.WorldX + relOffset.X, lvl.WorldY + relOffset.Y, px);
+                    }
+                }
+            }
+            //
+            
+            //Bitmap lvlImg = 
+
+
+            string writePath = Path.GetDirectoryName(ProjectPath) + '/' + world.Identifier + ".png";
+            
+            map.Save(writePath);
         }
 
-        public Image LoadLevelImage(Level lvl)
+        public Bitmap LoadLevelImage(Level lvl)
         {
             string path = Path.Combine(ProjectPath, ProjectName, "png") + lvl.Identifier + ".png";
-            return Image.FromFile(path);
+            return new Bitmap(path);
         }
     }
 }

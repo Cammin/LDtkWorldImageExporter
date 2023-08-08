@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using LDtkUnity;
 using Microsoft.Win32;
+using Utf8Json;
 
 namespace WorldImageMerger
 {
@@ -44,8 +47,12 @@ namespace WorldImageMerger
             ExportButton.Click += (sender, args) =>
             {
                 Console.WriteLine($"Export! \"{ChosenPath}\"");
+
+                byte[] bytes = File.ReadAllBytes(ChosenPath);
+                LdtkJson json = JsonSerializer.Deserialize<LdtkJson>(bytes);
                 
-                
+                ImageMaker maker = new ImageMaker(ChosenPath);
+                maker.MakeTheImage(json);
             };
         }
     }
