@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using LDtkUnity;
 using Microsoft.Win32;
 using Utf8Json;
@@ -56,9 +57,36 @@ namespace WorldImageMerger
                 LdtkJson json = JsonSerializer.Deserialize<LdtkJson>(bytes);
                 
                 ImageMaker maker = new ImageMaker(ChosenPath);
-                maker.MakeTheImage(json);
+                
+                World[] worlds = GetWorlds(json);
+                World worldToExport = worlds.FirstOrDefault();
+                if (worldToExport == null)
+                {
+                    throw new Exception("Issue");
+                }
+                
+                maker.ExportWorld(worldToExport);
             };
         }
+        
+        public World[] GetWorlds(LdtkJson json)
+        {
+            if (!json.Worlds.IsNullOrEmpty())
+            {
+                return json.Worlds;
+            }
+            
+            return new World[] { new World 
+            {
+                Identifier = "World",
+                Iid = json.DummyWorldIid,
+                Levels = json.Levels,
+                WorldLayout = json.WorldLayout.Value,
+                WorldGridWidth = json.WorldGridWidth.Value,
+                WorldGridHeight = json.WorldGridHeight.Value
+            }};
+        }
+        
 
         private void UpdateExportButton()
         {

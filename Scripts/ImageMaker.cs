@@ -23,36 +23,8 @@ namespace WorldImageMerger
             ProjectName = Path.GetFileNameWithoutExtension(projectPath);
         }
         
-        public void MakeTheImage(LdtkJson json)
+        public void ExportWorld(World world)
         {
-            World[] worlds = GetWorlds(json);
-
-            World first = worlds.First();
-            CreateWorldImage(first);
-        }
-
-        public World[] GetWorlds(LdtkJson json)
-        {
-            if (!json.Worlds.IsNullOrEmpty())
-            {
-                return json.Worlds;
-            }
-            
-            return new World[] { new World 
-            {
-                Identifier = ProjectName,
-                Iid = json.DummyWorldIid,
-                Levels = json.Levels,
-                WorldLayout = json.WorldLayout.Value,
-                WorldGridWidth = json.WorldGridWidth.Value,
-                WorldGridHeight = json.WorldGridHeight.Value
-            }};
-        }
-
-        public void CreateWorldImage(World world)
-        {
-            Console.WriteLine($"Creating world {world.Identifier} ({world.WorldGridWidth},{world.WorldGridHeight})");
-            
             Level[] levels = world.Levels.Where(p => p.WorldDepth == WorldDepth).ToArray();
             
             Rectangle worldRect = new Rectangle
@@ -63,65 +35,36 @@ namespace WorldImageMerger
             worldRect.Width = levels.Max(lvl => lvl.WorldX + lvl.PxWid) - worldRect.X;
             worldRect.Height = levels.Max(lvl => lvl.WorldY + lvl.PxHei) - worldRect.Y;
             
-            Console.WriteLine($"World: {worldRect}");
-
-
-            Point worldTopLeft = worldRect.Location;
-            
-            Point worldBottomRight = new Point(
-                levels.Min(lvl => lvl.WorldX), 
-                levels.Min(lvl => lvl.WorldY));
-            
-            
-            
-            
-            //expect -1024, -256
-            Console.WriteLine($"worldTopLeft ({worldTopLeft.X},{worldTopLeft.Y})");
             foreach (Level lvl in levels)
             {
-                Console.WriteLine($"worldPos {lvl.Identifier} ({lvl.WorldX},{lvl.WorldY})");
-                lvl.WorldX -= worldTopLeft.X;
-                lvl.WorldY -= worldTopLeft.Y;
+                lvl.WorldX -= worldRect.Location.X;
+                lvl.WorldY -= worldRect.Location.Y;
             }
-
-
-
-            Bitmap map = new Bitmap(worldRect.Width, worldRect.Height);
             
-            
-            
+            Bitmap worldImg = new Bitmap(worldRect.Width, worldRect.Height);
             foreach (Level lvl in levels)
             {
-                Bitmap image = LoadLevelImage(lvl);
-                
-                
+                Bitmap lvlImg = LoadLevelImage(lvl);
                 Point worldPos = new Point(lvl.WorldX, lvl.WorldY);
                 
-               // Console.WriteLine($"worldPos ({lvl.WorldX},{lvl.WorldY})");
-                //Console.WriteLine($"worldPos ({worldPos.X},{worldPos.Y})");
-                
-                for (int x = 0; x < image.Width; x++)
+                for (int x = 0; x < lvlImg.Width; x++)
                 {
-                    for (int y = 0; y < image.Height; y++)
+                    for (int y = 0; y < lvlImg.Height; y++)
                     {
-                        Color px = image.GetPixel(x, y);
-
-                        
-                        //Console.WriteLine($"Setting px of {lvl.Identifier} from src ({x},{y}) from worldPos ({lvl.WorldX},{lvl.WorldY}) for actual: ({pointOnMap.X},{pointOnMap.Y})");
-                        
-                        map.SetPixel(worldPos.X + x, worldPos.Y + y, px);
+                        Color px = lvlImg.GetPixel(x, y);
+                        worldImg.SetPixel(worldPos.X + x, worldPos.Y + y, px);
                     }
                 }
             }
-            //
             
-            //Bitmap lvlImg = 
-
-
-            string writePath = ProjectDir + '/' + world.Identifier + ".png";
+            string fileName = $"{world.Identifier}_{WorldDepth}.png";
+            string writeDir = Path.Combine(ProjectDir, ProjectName, "world");
+            string writePath = Path.Combine(writeDir, fileName);
             
             Console.WriteLine($"Writing world image to {writePath}");
-            map.Save(writePath, ImageFormat.Png);
+            Directory.CreateDirectory(writeDir);
+            worldImg.Save(writePath, ImageFormat.Png);
+            Console.WriteLine($"Wrote!");
         }
 
         public Bitmap LoadLevelImage(Level lvl)
@@ -132,7 +75,6 @@ namespace WorldImageMerger
             {
                 throw new FileNotFoundException($"Didn't find image file at {path}");
             }
-            Console.WriteLine($"Reading world image {path}");
             return new Bitmap(path);
         }
     }
