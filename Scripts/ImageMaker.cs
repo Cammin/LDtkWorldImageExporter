@@ -12,9 +12,12 @@ namespace WorldImageMerger
         public string ProjectPath;
         public string ProjectDir;
         public string ProjectName;
+        public int WorldDepth;
 
-        public ImageMaker(string projectPath)
+        public ImageMaker(string projectPath, int worldDepth = 0)
         {
+            WorldDepth = worldDepth;
+            
             ProjectPath = projectPath;
             ProjectDir = Path.GetDirectoryName(projectPath);
             ProjectName = Path.GetFileNameWithoutExtension(projectPath);
@@ -37,7 +40,7 @@ namespace WorldImageMerger
             
             return new World[] { new World 
             {
-                Identifier = "World",
+                Identifier = ProjectName,
                 Iid = json.DummyWorldIid,
                 Levels = json.Levels,
                 WorldLayout = json.WorldLayout.Value,
@@ -48,33 +51,65 @@ namespace WorldImageMerger
 
         public void CreateWorldImage(World world)
         {
-            Console.WriteLine($"Creating world {world.Identifier}");
+            Console.WriteLine($"Creating world {world.Identifier} ({world.WorldGridWidth},{world.WorldGridHeight})");
             
-            Level[] levels = world.Levels;
+            Level[] levels = world.Levels.Where(p => p.WorldDepth == WorldDepth).ToArray();
             
             Rectangle worldRect = new Rectangle
             {
                 X = levels.Min(lvl => lvl.WorldX),
-                Y = levels.Max(lvl => lvl.WorldY),
-                Width = levels.Max(lvl => lvl.WorldX + lvl.PxWid),
-                Height = levels.Max(lvl => lvl.WorldY + lvl.PxHei)
+                Y = levels.Min(lvl => lvl.WorldY),
             };
-            Point relOffset = worldRect.Location;
-            relOffset.X = -relOffset.X;
-            relOffset.Y = -relOffset.Y;
-
+            worldRect.Width = levels.Max(lvl => lvl.WorldX + lvl.PxWid) - worldRect.X;
+            worldRect.Height = levels.Max(lvl => lvl.WorldY + lvl.PxHei) - worldRect.Y;
             
-            Bitmap map = new Bitmap(worldRect.Width, worldRect.Height);
+            Console.WriteLine($"World: {worldRect}");
 
+
+            Point worldTopLeft = worldRect.Location;
+            
+            Point worldBottomRight = new Point(
+                levels.Min(lvl => lvl.WorldX), 
+                levels.Min(lvl => lvl.WorldY));
+            
+            
+            
+            
+            //expect -1024, -256
+            Console.WriteLine($"worldTopLeft ({worldTopLeft.X},{worldTopLeft.Y})");
+            foreach (Level lvl in levels)
+            {
+                Console.WriteLine($"worldPos {lvl.Identifier} ({lvl.WorldX},{lvl.WorldY})");
+                lvl.WorldX -= worldTopLeft.X;
+                lvl.WorldY -= worldTopLeft.Y;
+            }
+
+
+
+            Bitmap map = new Bitmap(worldRect.Width, worldRect.Height);
+            
+            
+            
             foreach (Level lvl in levels)
             {
                 Bitmap image = LoadLevelImage(lvl);
+                
+                
+                Point worldPos = new Point(lvl.WorldX, lvl.WorldY);
+                
+               // Console.WriteLine($"worldPos ({lvl.WorldX},{lvl.WorldY})");
+                //Console.WriteLine($"worldPos ({worldPos.X},{worldPos.Y})");
+                
                 for (int x = 0; x < image.Width; x++)
                 {
                     for (int y = 0; y < image.Height; y++)
                     {
                         Color px = image.GetPixel(x, y);
-                        map.SetPixel(lvl.WorldX + relOffset.X, lvl.WorldY + relOffset.Y, px);
+
+                        
+                        //Console.WriteLine($"Setting px of {lvl.Identifier} from src ({x},{y}) from worldPos ({lvl.WorldX},{lvl.WorldY}) for actual: ({pointOnMap.X},{pointOnMap.Y})");
+                        
+                        map.SetPixel(worldPos.X + x, worldPos.Y + y, px);
                     }
                 }
             }
@@ -91,7 +126,7 @@ namespace WorldImageMerger
 
         public Bitmap LoadLevelImage(Level lvl)
         {
-            string path = Path.Combine(ProjectPath, ProjectName, "png") + lvl.Identifier + ".png";
+            string path = Path.Combine(ProjectDir, ProjectName, "png", lvl.Identifier + ".png");
 
             if (!File.Exists(path))
             {

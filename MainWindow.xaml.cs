@@ -16,6 +16,10 @@ namespace WorldImageMerger
     {
         public string WorkingDirectory;
         
+        #if DEBUG
+        //public string ChosenPath = "C:/Users/cameo/Documents/_Personal/LDtkWorldImageMerger/Test/WorldMap_GridVania_layout.ldtk";
+        #else
+#endif
         public string ChosenPath;
         
         public MainWindow()
@@ -23,7 +27,7 @@ namespace WorldImageMerger
             InitializeComponent();
             Console.WriteLine("Start app");
 
-            ExportButton.IsEnabled = false;
+            UpdateExportButton();
             
             WorkingDirectory = Environment.CurrentDirectory;
             
@@ -41,7 +45,7 @@ namespace WorldImageMerger
                     Console.WriteLine($"Picked. \"{ChosenPath}\"");
                 }
                 
-                ExportButton.IsEnabled = !string.IsNullOrEmpty(ChosenPath);
+                UpdateExportButton();
             };
 
             ExportButton.Click += (sender, args) =>
@@ -54,6 +58,11 @@ namespace WorldImageMerger
                 ImageMaker maker = new ImageMaker(ChosenPath);
                 maker.MakeTheImage(json);
             };
+        }
+
+        private void UpdateExportButton()
+        {
+            ExportButton.IsEnabled = !string.IsNullOrEmpty(ChosenPath);
         }
     }
 }
