@@ -5,7 +5,7 @@
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProjectGuid>{3228182D-00E5-4EDD-8873-A7CC7A18A801}</ProjectGuid>
-        <OutputType>Exe</OutputType>
+        <OutputType>WinExe</OutputType>
         <RootNamespace>WorldImageMerger</RootNamespace>
         <AssemblyName>WorldImageMerger</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
