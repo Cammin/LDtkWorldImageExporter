@@ -8,3 +8,5 @@ How to use:
 - Select which world and depth you want to export.
 - Click the generate button and wait for the loading bar to finish.
 - Click open folder to view where the image was saved.
+
+![image](https://github.com/Cammin/LDtkWorldImageExporter/assets/55564581/2d5d1e4b-fbbf-4316-a9f6-cc0729922692)
