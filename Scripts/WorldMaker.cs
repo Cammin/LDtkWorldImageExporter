@@ -1,31 +1,64 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Controls;
 using LDtkUnity;
 
 namespace WorldImageMerger
 {
-    public class ImageMaker
+    public class WorldMaker
     {
         public string ProjectPath;
         public string ProjectDir;
         public string ProjectName;
         public int WorldDepth;
+        public ProgressBar Bar;
+        public BackgroundWorker Worker = new BackgroundWorker();
 
-        public ImageMaker(string projectPath, int worldDepth = 0)
+        public WorldMaker(string projectPath, int worldDepth, ProgressBar progressBar)
         {
             WorldDepth = worldDepth;
             
             ProjectPath = projectPath;
             ProjectDir = Path.GetDirectoryName(projectPath);
             ProjectName = Path.GetFileNameWithoutExtension(projectPath);
+            Bar = progressBar;
+        }
+        
+        public void ExportWorldWithProgress(World world)
+        {
+            Worker.WorkerReportsProgress = true;
+            Worker.DoWork += (sender, args) =>
+            {
+                ExportWorld(world);
+                /*for(int i = 0; i < 100; i++)
+                {
+                    (sender as BackgroundWorker)?.ReportProgress(i);
+                    Thread.Sleep(100);
+                }*/
+            };
+            
+            Bar.Minimum = 0;
+            Bar.Maximum = 100;
+            Bar.Value = 0;
+            
+            Worker.ProgressChanged += (sender, args) =>
+            {
+                Bar.Value = args.ProgressPercentage;
+            };
+            Worker.RunWorkerAsync();
         }
         
         public void ExportWorld(World world)
         {
             Level[] levels = world.Levels.Where(p => p.WorldDepth == WorldDepth).ToArray();
+
+            Worker.ReportProgress(0);
             
             Rectangle worldRect = new Rectangle
             {
@@ -42,11 +75,16 @@ namespace WorldImageMerger
             }
             
             Bitmap worldImg = new Bitmap(worldRect.Width, worldRect.Height);
-            foreach (Level lvl in levels)
+            for (int i = 0; i < levels.Length; i++)
             {
+                double fraction = i/(double)levels.Length;
+                Worker.ReportProgress((int)Math.Round(fraction * 100));
+                
+                Level lvl = levels[i];
+                Console.WriteLine($"Adding lvl {lvl.Identifier}");
                 Bitmap lvlImg = LoadLevelImage(lvl);
                 Point worldPos = new Point(lvl.WorldX, lvl.WorldY);
-                
+
                 for (int x = 0; x < lvlImg.Width; x++)
                 {
                     for (int y = 0; y < lvlImg.Height; y++)
@@ -56,7 +94,7 @@ namespace WorldImageMerger
                     }
                 }
             }
-            
+
             string fileName = $"{world.Identifier}_{WorldDepth}.png";
             string writeDir = Path.Combine(ProjectDir, ProjectName, "world");
             string writePath = Path.Combine(writeDir, fileName);
@@ -65,7 +103,10 @@ namespace WorldImageMerger
             Directory.CreateDirectory(writeDir);
             worldImg.Save(writePath, ImageFormat.Png);
             Console.WriteLine($"Wrote!");
+            Worker.ReportProgress(100);
         }
+
+        
 
         public Bitmap LoadLevelImage(Level lvl)
         {

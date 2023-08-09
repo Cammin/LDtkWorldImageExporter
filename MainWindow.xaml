@@ -5,42 +5,78 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WorldImageMerger"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-        
+        Title="World Image" Width="350" Height="350">
+    <Grid Margin="10">
         <StackPanel>
             
+            <!-- CHOOSE -->
             <StackPanel Orientation="Horizontal">
-                
                 <Button 
-                    x:Name = "PickButton" 
-                    Width="60px"
+                    x:Name = "ButtonPickPath" 
+                    Width="100"
                     Cursor="Hand">
                     Choose
                 </Button>
-                <Label>Pick the path of the .ldtk project</Label>
-                
+                <Label>Project Path</Label>
             </StackPanel>
             
+            <!-- PATH -->
+            <Label x:Name = "LabelChosenPath">Choose the path </Label>
+            
+            <!-- World NAME -->
             <StackPanel Orientation="Horizontal">
-            <Button 
-                x:Name = "ExportButton" 
-                Width="60px"
-                Cursor="Hand">
-                Export
-            </Button>
-            <Label x:Name="Path"></Label>
+                <ComboBox 
+                    x:Name="ComboBoxWorldIdentifier"
+                    Width="100"
+                    ItemsSource="{Binding WorldIdentifierOptions}" 
+                    SelectedItem="{Binding WorldIdentifier, Mode=TwoWay}"
+                    >
+                </ComboBox>
+                <Label>World</Label>
             </StackPanel>
+
+            <!-- World's Depth options -->
+            <StackPanel Orientation="Horizontal">
+                <ComboBox 
+                    x:Name="ComboBoxWorldDepth"
+                    Width="100"
+                    ItemsSource="{Binding WorldDepthOptions}" 
+                    SelectedItem="{Binding WorldDepth, Mode=TwoWay}"
+                    >
+                </ComboBox>
+                <Label>Depth</Label>
+            </StackPanel>
+            
+            <!-- Build -->
+            <StackPanel Orientation="Horizontal">
+                <Button 
+                    x:Name = "ButtonGenerate"
+                    Width="100"
+                    Cursor="Hand">
+                    Build
+                </Button>
+            </StackPanel>
+            
+            <!--Loading BAR-->
+            <ProgressBar Name="LoadingBar" Height="10" Width = "256" HorizontalAlignment="Left" Margin="0, 10, 0, 10"></ProgressBar>
+            
+            <!-- SAVE -->
+            <StackPanel Orientation="Horizontal" IsEnabled="false">
+                <Button 
+                    x:Name = "ButtonSave" 
+                    Width="100"
+                    Cursor="Hand">
+                    Save
+                </Button>
+            </StackPanel>
+            
+            <Image Name = "ImagePreview" Height="128" Width="128">
+                
+            </Image>
+            
+            
             
             
         </StackPanel>
-        
-        
-        
-        
-        
-        
-        
     </Grid>
 </Window>

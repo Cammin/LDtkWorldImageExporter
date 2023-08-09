@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
+using System.Drawing;
 using System.Linq;
+using System.Windows;
+using System.Windows.Media.Imaging;
 using LDtkUnity;
 using Microsoft.Win32;
-using Utf8Json;
 
 namespace WorldImageMerger
 {
@@ -16,23 +17,25 @@ namespace WorldImageMerger
     public partial class MainWindow
     {
         public string WorkingDirectory;
-        
-        #if DEBUG
-        //public string ChosenPath = "C:/Users/cameo/Documents/_Personal/LDtkWorldImageMerger/Test/WorldMap_GridVania_layout.ldtk";
-        #else
-#endif
+        public WorldsMaker Maker;
         public string ChosenPath;
+
+        public List<string> WorldIdentifierOptions;
+        public string WorldIdentifier;
+        
+        public List<int> WorldDepthOptions;
+        public int? WorldDepth;
+
+        public Bitmap PreviewImage;
         
         public MainWindow()
         {
             InitializeComponent();
             Console.WriteLine("Start app");
-
-            UpdateExportButton();
-            
+            UpdateEnableds();
             WorkingDirectory = Environment.CurrentDirectory;
             
-            PickButton.Click += (sender, args) =>
+            ButtonPickPath.Click += (sender, args) =>
             {
                 OpenFileDialog dialog = new OpenFileDialog();
                 dialog.InitialDirectory = ChosenPath ?? WorkingDirectory;
@@ -42,55 +45,87 @@ namespace WorldImageMerger
                 if (dialog.ShowDialog().GetValueOrDefault())
                 {
                     ChosenPath = dialog.FileName;
-                    Path.Content = ChosenPath;
                     Console.WriteLine($"Picked. \"{ChosenPath}\"");
+                    
+                    LabelChosenPath.Content = ChosenPath;
+                    Maker = new WorldsMaker(ChosenPath, LoadingBar);
+                    
+                    WorldIdentifierOptions = Maker.Worlds.Select(p => p.Identifier).ToList();
+                    WorldIdentifier = WorldIdentifierOptions.First();
+
+                    ComboBoxWorldIdentifier.ItemsSource = WorldIdentifierOptions;
+                    ComboBoxWorldIdentifier.SelectedValue = WorldIdentifier;
                 }
                 
-                UpdateExportButton();
+                UpdateEnableds();
             };
-
-            ExportButton.Click += (sender, args) =>
+            
+            ComboBoxWorldIdentifier.SelectionChanged += (sender, args) =>
+            {
+                WorldIdentifier = (string)ComboBoxWorldIdentifier.SelectedValue;
+                Console.WriteLine($"Picked WorldIdentifier \"{WorldIdentifier}\"");
+                
+                //when a world is picked, get that world and solve what world depth options there are
+                World world = Maker.GetWorldByName(WorldIdentifier);
+                WorldDepthOptions = world.Levels.Select(p => p.WorldDepth).Distinct().ToList();
+                WorldDepth = WorldDepthOptions.First();
+                
+                ComboBoxWorldDepth.ItemsSource = WorldDepthOptions;
+                ComboBoxWorldDepth.SelectedValue = WorldDepth;
+                
+                UpdateEnableds();
+            };
+            ComboBoxWorldDepth.SelectionChanged += (sender, args) =>
+            {
+                WorldDepth = (int)ComboBoxWorldDepth.SelectedValue;
+                Console.WriteLine($"Picked WorldDepth \"{WorldDepth}\"");
+                
+                UpdateEnableds();
+            };
+            
+            ButtonGenerate.Click += (sender, args) =>
             {
                 Console.WriteLine($"Export! \"{ChosenPath}\"");
-
-                byte[] bytes = File.ReadAllBytes(ChosenPath);
-                LdtkJson json = JsonSerializer.Deserialize<LdtkJson>(bytes);
-                
-                ImageMaker maker = new ImageMaker(ChosenPath);
-                
-                World[] worlds = GetWorlds(json);
-                World worldToExport = worlds.FirstOrDefault();
-                if (worldToExport == null)
-                {
-                    throw new Exception("Issue");
-                }
-                
-                maker.ExportWorld(worldToExport);
+                Maker.Export(WorldIdentifier, WorldDepth.Value);
             };
-        }
-        
-        public World[] GetWorlds(LdtkJson json)
-        {
-            if (!json.Worlds.IsNullOrEmpty())
+            ButtonSave.Click += (sender, args) =>
             {
-                return json.Worlds;
-            }
+                
+            };
             
-            return new World[] { new World 
-            {
-                Identifier = "World",
-                Iid = json.DummyWorldIid,
-                Levels = json.Levels,
-                WorldLayout = json.WorldLayout.Value,
-                WorldGridWidth = json.WorldGridWidth.Value,
-                WorldGridHeight = json.WorldGridHeight.Value
-            }};
+            UpdateEnableds();
         }
         
-
-        private void UpdateExportButton()
+        private void UpdateEnableds()
         {
-            ExportButton.IsEnabled = !string.IsNullOrEmpty(ChosenPath);
+            bool chosePath = !string.IsNullOrEmpty(ChosenPath);
+            bool choseWorld = chosePath && !WorldIdentifier.IsNullOrEmpty();
+            bool choseDepth = choseWorld && WorldDepth != null;
+            bool hasImage = choseDepth && PreviewImage != null;
+            
+            Console.WriteLine($"chosePath \"{chosePath}\"");
+            Console.WriteLine($"choseWorld \"{choseWorld}\"");
+            Console.WriteLine($"choseDepth \"{choseDepth}\"");
+
+            LabelChosenPath.IsEnabled = true;
+            ComboBoxWorldIdentifier.IsEnabled = chosePath;
+            ComboBoxWorldDepth.IsEnabled = choseWorld;
+            ButtonGenerate.IsEnabled = choseDepth;
+            LoadingBar.IsEnabled = true;
+            ImagePreview.IsEnabled = true;
+            ButtonSave.IsEnabled = hasImage;
+        }
+
+        private void OnClickButtonGenerate(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine($"Export! \"{ChosenPath}\"");
+            Maker.Export(WorldIdentifier, WorldDepth.Value);
+        }
+
+        private void OnClickButtonSave(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine($"Export! \"{ChosenPath}\"");
+            Maker.Export(WorldIdentifier, WorldDepth.Value);
         }
     }
 }

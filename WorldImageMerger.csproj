@@ -59,7 +59,7 @@
             <SubType>Designer</SubType>
         </ApplicationDefinition>
         <Compile Include="Scripts\Extensions.cs" />
-        <Compile Include="Scripts\ImageMaker.cs" />
+        <Compile Include="Scripts\WorldMaker.cs" />
         <Compile Include="Scripts\Schema\Converter\Serialize.cs" />
         <Compile Include="Scripts\Schema\Definition\AutoLayerRuleDefinition.cs" />
         <Compile Include="Scripts\Schema\Definition\AutoLayerRuleGroup.cs" />
@@ -108,6 +108,7 @@
         <Compile Include="Scripts\Schema\Level\LevelBackgroundPosition.cs" />
         <Compile Include="Scripts\Schema\Level\NeighbourLevel.cs" />
         <Compile Include="Scripts\Schema\Level\World.cs" />
+        <Compile Include="Scripts\WorldsMaker.cs" />
         <Page Include="MainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
