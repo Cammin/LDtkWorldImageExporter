@@ -1,4 +1,4 @@
-﻿namespace LDtkUnity
+﻿namespace WorldImageMerger
 {
     /// <summary>
     /// "Image export" option when saving project. Possible values: `None`, `OneImagePerLayer`,

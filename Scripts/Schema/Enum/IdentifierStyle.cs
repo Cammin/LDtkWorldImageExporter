@@ -1,4 +1,4 @@
-﻿namespace LDtkUnity
+﻿namespace WorldImageMerger
 {
     /// <summary>
     /// Naming convention for Identifiers (first-letter uppercase, full uppercase etc.) Possible

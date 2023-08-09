@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace LDtkUnity
+namespace WorldImageMerger
 {
     /// <summary>
     /// **IMPORTANT**: this type is available as a preview. You can rely on it to update your

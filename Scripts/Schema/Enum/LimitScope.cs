@@ -1,4 +1,4 @@
-﻿namespace LDtkUnity
+﻿namespace WorldImageMerger
 {
     /// <summary>
     /// If TRUE, the maxCount is a "per world" limit, if FALSE, it's a "per level". Possible

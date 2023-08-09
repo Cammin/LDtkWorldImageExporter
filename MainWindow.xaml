@@ -59,10 +59,8 @@
                 </Button>
             </StackPanel>
             
-            
             <!--Loading BAR-->
             <ProgressBar Name="LoadingBar" Height="10" Width = "256" HorizontalAlignment="Left" Margin="0, 3, 0, 3"></ProgressBar>
-            
             
             <!-- SAVE -->
             <StackPanel Orientation="Horizontal">

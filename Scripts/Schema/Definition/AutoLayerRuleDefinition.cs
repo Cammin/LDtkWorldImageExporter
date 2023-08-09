@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace LDtkUnity
+namespace WorldImageMerger
 {
     /// <summary>
     /// This complex section isn't meant to be used by game devs at all, as these rules are

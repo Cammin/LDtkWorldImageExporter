@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using LDtkUnity;
 using Microsoft.Win32;
 
 namespace WorldImageMerger
@@ -114,10 +110,6 @@ namespace WorldImageMerger
             bool choseDepth = choseWorld && WorldDepth != null;
             bool hasImagePath = Maker != null && Directory.Exists(Maker.Maker.WriteDir);
             
-            //Console.WriteLine($"chosePath \"{chosePath}\"");
-            //Console.WriteLine($"choseWorld \"{choseWorld}\"");
-            //Console.WriteLine($"choseDepth \"{choseDepth}\"");
-
             LabelChosenPath.IsEnabled = true;
             ComboBoxWorldIdentifier.IsEnabled = chosePath;
             ComboBoxWorldDepth.IsEnabled = choseWorld;

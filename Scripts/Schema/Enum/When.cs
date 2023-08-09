@@ -1,4 +1,4 @@
-﻿namespace LDtkUnity
+﻿namespace WorldImageMerger
 {
     /// <summary>
     /// Possible values: `Manual`, `AfterLoad`, `BeforeSave`, `AfterSave`

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace LDtkUnity
+namespace WorldImageMerger
 {
     /// <summary>
     /// This object is not actually used by LDtk. It ONLY exists to force explicit references to

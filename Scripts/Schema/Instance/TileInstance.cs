@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace LDtkUnity
+namespace WorldImageMerger
 {
     /// <summary>
     /// This structure represents a single tile from a given Tileset.

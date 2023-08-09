@@ -1,6 +1,6 @@
 ﻿using Utf8Json;
 
-namespace LDtkUnity
+namespace WorldImageMerger
 {
     public static class Serialize
     {

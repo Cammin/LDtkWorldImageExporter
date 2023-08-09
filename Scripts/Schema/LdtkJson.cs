@@ -6,7 +6,7 @@
 //
 //    var ldtkJson = LdtkJson.FromJson(jsonString);
 
-namespace LDtkUnity
+namespace WorldImageMerger
 {
     using System;
     using System.Collections.Generic;

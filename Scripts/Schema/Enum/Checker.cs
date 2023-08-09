@@ -1,4 +1,4 @@
-﻿namespace LDtkUnity
+﻿namespace WorldImageMerger
 {
     /// <summary>
     /// Checker mode Possible values: `None`, `Horizontal`, `Vertical`

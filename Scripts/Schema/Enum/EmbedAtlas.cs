@@ -1,4 +1,4 @@
-﻿namespace LDtkUnity
+﻿namespace WorldImageMerger
 {
     public enum EmbedAtlas { LdtkIcons };
 }
