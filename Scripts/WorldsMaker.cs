@@ -11,8 +11,9 @@ namespace WorldImageMerger
     {
         public string ProjectPath;
         public LdtkJson Json;
-        public ProgressBar Bar;
+        
         public World[] Worlds;
+        public WorldMaker Maker;
         
         public WorldsMaker(string projectPath, ProgressBar progressBar)
         {
@@ -20,14 +21,13 @@ namespace WorldImageMerger
             byte[] bytes = File.ReadAllBytes(ProjectPath);
             Json = JsonSerializer.Deserialize<LdtkJson>(bytes);
             Worlds = GetWorlds();
-            Bar = progressBar;
+            Maker = new WorldMaker(ProjectPath, progressBar);
         }
         
         public void Export(string worldIdentifier, int worldDepth)
         {
             World worldToExport = GetWorldByName(worldIdentifier);
-            WorldMaker maker = new WorldMaker(ProjectPath, worldDepth, Bar);
-            maker.ExportWorldWithProgress(worldToExport);
+            Maker.ExportWorldWithProgress(worldToExport, worldDepth);
         }
 
         public World GetWorldByName(string identifier)
@@ -49,7 +49,7 @@ namespace WorldImageMerger
             
             return new World[] { new World 
             {
-                Identifier = "World",
+                Identifier = Path.GetFileNameWithoutExtension(ProjectPath),
                 Iid = Json.DummyWorldIid,
                 Levels = Json.Levels,
                 WorldLayout = Json.WorldLayout.Value,

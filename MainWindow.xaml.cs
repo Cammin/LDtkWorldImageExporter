@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -25,8 +27,6 @@ namespace WorldImageMerger
         
         public List<int> WorldDepthOptions;
         public int? WorldDepth;
-
-        public Bitmap PreviewImage;
         
         public MainWindow()
         {
@@ -49,6 +49,11 @@ namespace WorldImageMerger
                     
                     LabelChosenPath.Content = ChosenPath;
                     Maker = new WorldsMaker(ChosenPath, LoadingBar);
+                    Maker.Maker.OnExported += writePath =>
+                    {
+                        Console.WriteLine($"OnExported!");
+                        LabelWritePath.Content = $"Saved to: {writePath}";
+                    };
                     
                     WorldIdentifierOptions = Maker.Worlds.Select(p => p.Identifier).ToList();
                     WorldIdentifier = WorldIdentifierOptions.First();
@@ -85,15 +90,21 @@ namespace WorldImageMerger
             
             ButtonGenerate.Click += (sender, args) =>
             {
-                Console.WriteLine($"Export! \"{ChosenPath}\"");
-                Maker.Export(WorldIdentifier, WorldDepth.Value);
+                if (Maker.Maker.IsNotBusy)
+                {
+                    Console.WriteLine($"Export! {WorldIdentifier}:{WorldDepth.Value} \"{ChosenPath}\"");
+                    Maker.Export(WorldIdentifier, WorldDepth.Value);
+                }
+
+                UpdateEnableds();
             };
-            ButtonSave.Click += (sender, args) =>
+            ButtonOpenFolderPath.Click += (sender, args) =>
             {
-                
+                if (Directory.Exists(Maker.Maker.WriteDir))
+                {
+                    Process.Start(Maker.Maker.WriteDir);
+                }
             };
-            
-            UpdateEnableds();
         }
         
         private void UpdateEnableds()
@@ -101,31 +112,23 @@ namespace WorldImageMerger
             bool chosePath = !string.IsNullOrEmpty(ChosenPath);
             bool choseWorld = chosePath && !WorldIdentifier.IsNullOrEmpty();
             bool choseDepth = choseWorld && WorldDepth != null;
-            bool hasImage = choseDepth && PreviewImage != null;
+            bool hasImagePath = Maker != null && Directory.Exists(Maker.Maker.WriteDir);
             
-            Console.WriteLine($"chosePath \"{chosePath}\"");
-            Console.WriteLine($"choseWorld \"{choseWorld}\"");
-            Console.WriteLine($"choseDepth \"{choseDepth}\"");
+            //Console.WriteLine($"chosePath \"{chosePath}\"");
+            //Console.WriteLine($"choseWorld \"{choseWorld}\"");
+            //Console.WriteLine($"choseDepth \"{choseDepth}\"");
 
             LabelChosenPath.IsEnabled = true;
             ComboBoxWorldIdentifier.IsEnabled = chosePath;
             ComboBoxWorldDepth.IsEnabled = choseWorld;
             ButtonGenerate.IsEnabled = choseDepth;
             LoadingBar.IsEnabled = true;
-            ImagePreview.IsEnabled = true;
-            ButtonSave.IsEnabled = hasImage;
-        }
+            ButtonOpenFolderPath.IsEnabled = hasImagePath;
 
-        private void OnClickButtonGenerate(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine($"Export! \"{ChosenPath}\"");
-            Maker.Export(WorldIdentifier, WorldDepth.Value);
-        }
-
-        private void OnClickButtonSave(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine($"Export! \"{ChosenPath}\"");
-            Maker.Export(WorldIdentifier, WorldDepth.Value);
+            if (Maker != null && choseDepth)
+            {
+                LabelWritePath.Content = $"Save to: {Maker.Maker.GetWritePath(WorldIdentifier, WorldDepth.Value)}";
+            }
         }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WorldImageMerger"
         mc:Ignorable="d"
-        Title="World Image" Width="350" Height="350">
+        Title="World Image" Width="720" Height="256">
     <Grid Margin="10">
         <StackPanel>
             
@@ -21,13 +21,13 @@
             </StackPanel>
             
             <!-- PATH -->
-            <Label x:Name = "LabelChosenPath">Choose the path </Label>
+            <Label x:Name = "LabelChosenPath"> </Label>
             
             <!-- World NAME -->
             <StackPanel Orientation="Horizontal">
                 <ComboBox 
                     x:Name="ComboBoxWorldIdentifier"
-                    Width="100"
+                    Width="256"
                     ItemsSource="{Binding WorldIdentifierOptions}" 
                     SelectedItem="{Binding WorldIdentifier, Mode=TwoWay}"
                     >
@@ -39,7 +39,7 @@
             <StackPanel Orientation="Horizontal">
                 <ComboBox 
                     x:Name="ComboBoxWorldDepth"
-                    Width="100"
+                    Width="256"
                     ItemsSource="{Binding WorldDepthOptions}" 
                     SelectedItem="{Binding WorldDepth, Mode=TwoWay}"
                     >
@@ -47,35 +47,32 @@
                 <Label>Depth</Label>
             </StackPanel>
             
+            <Label x:Name = "LabelWritePath"> </Label>
+            
             <!-- Build -->
             <StackPanel Orientation="Horizontal">
                 <Button 
                     x:Name = "ButtonGenerate"
                     Width="100"
                     Cursor="Hand">
-                    Build
+                    Generate
                 </Button>
             </StackPanel>
+            
             
             <!--Loading BAR-->
-            <ProgressBar Name="LoadingBar" Height="10" Width = "256" HorizontalAlignment="Left" Margin="0, 10, 0, 10"></ProgressBar>
+            <ProgressBar Name="LoadingBar" Height="10" Width = "256" HorizontalAlignment="Left" Margin="0, 3, 0, 3"></ProgressBar>
+            
             
             <!-- SAVE -->
-            <StackPanel Orientation="Horizontal" IsEnabled="false">
+            <StackPanel Orientation="Horizontal">
                 <Button 
-                    x:Name = "ButtonSave" 
+                    x:Name = "ButtonOpenFolderPath" 
                     Width="100"
                     Cursor="Hand">
-                    Save
+                    Open Folder
                 </Button>
             </StackPanel>
-            
-            <Image Name = "ImagePreview" Height="128" Width="128">
-                
-            </Image>
-            
-            
-            
             
         </StackPanel>
     </Grid>

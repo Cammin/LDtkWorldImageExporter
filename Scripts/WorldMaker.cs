@@ -16,37 +16,38 @@ namespace WorldImageMerger
         public string ProjectPath;
         public string ProjectDir;
         public string ProjectName;
-        public int WorldDepth;
-        public ProgressBar Bar;
-        public BackgroundWorker Worker = new BackgroundWorker();
 
-        public WorldMaker(string projectPath, int worldDepth, ProgressBar progressBar)
+        public string WriteDir;
+        
+        public ProgressBar Bar;
+        public BackgroundWorker Worker;
+        
+        public event Action<string> OnExported;
+        
+
+        public WorldMaker(string projectPath, ProgressBar progressBar)
         {
-            WorldDepth = worldDepth;
-            
             ProjectPath = projectPath;
             ProjectDir = Path.GetDirectoryName(projectPath);
             ProjectName = Path.GetFileNameWithoutExtension(projectPath);
+            WriteDir = Path.Combine(ProjectDir, ProjectName, "world");
             Bar = progressBar;
         }
-        
-        public void ExportWorldWithProgress(World world)
+
+        public bool IsNotBusy => Worker == null || !Worker.IsBusy;
+
+        public void ExportWorldWithProgress(World world, int worldDepth)
         {
-            Worker.WorkerReportsProgress = true;
-            Worker.DoWork += (sender, args) =>
-            {
-                ExportWorld(world);
-                /*for(int i = 0; i < 100; i++)
-                {
-                    (sender as BackgroundWorker)?.ReportProgress(i);
-                    Thread.Sleep(100);
-                }*/
-            };
-            
             Bar.Minimum = 0;
             Bar.Maximum = 100;
             Bar.Value = 0;
-            
+
+            Worker = new BackgroundWorker();
+            Worker.WorkerReportsProgress = true;
+            Worker.DoWork += (sender, args) =>
+            {
+                ExportWorld(world, worldDepth);
+            };
             Worker.ProgressChanged += (sender, args) =>
             {
                 Bar.Value = args.ProgressPercentage;
@@ -54,9 +55,9 @@ namespace WorldImageMerger
             Worker.RunWorkerAsync();
         }
         
-        public void ExportWorld(World world)
+        public void ExportWorld(World world, int worldDepth)
         {
-            Level[] levels = world.Levels.Where(p => p.WorldDepth == WorldDepth).ToArray();
+            Level[] levels = world.Levels.Where(p => p.WorldDepth == worldDepth).ToArray();
 
             Worker.ReportProgress(0);
             
@@ -95,18 +96,19 @@ namespace WorldImageMerger
                 }
             }
 
-            string fileName = $"{world.Identifier}_{WorldDepth}.png";
-            string writeDir = Path.Combine(ProjectDir, ProjectName, "world");
-            string writePath = Path.Combine(writeDir, fileName);
+            string writePath = GetWritePath(world.Identifier, worldDepth);
             
-            Console.WriteLine($"Writing world image to {writePath}");
-            Directory.CreateDirectory(writeDir);
+            Directory.CreateDirectory(WriteDir);
             worldImg.Save(writePath, ImageFormat.Png);
-            Console.WriteLine($"Wrote!");
+            Console.WriteLine($"Wrote world image to {writePath}");
             Worker.ReportProgress(100);
+            OnExported?.Invoke(writePath);
         }
-
         
+        public string GetWritePath(string worldName, int worldDepth)
+        {
+            return Path.Combine(WriteDir, $"{worldName}_{worldDepth}.png");
+        }
 
         public Bitmap LoadLevelImage(Level lvl)
         {
