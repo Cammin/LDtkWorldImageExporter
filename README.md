@@ -6,7 +6,7 @@ This is useful for:
 - Creating a minimap
 - Sharing in devlogs
 
-How to use:
+### How to use:
 - Ensure you've made the level images first; Save your LDtk project with the "Export as PNG" option to "One PNG per level".
 - Open the app. (It may ask permissions. Allow it)
 - Click the first button to specify the `.ldtk` file.
