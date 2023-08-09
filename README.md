@@ -1,6 +1,11 @@
 # LDtk World Image Exporter
 An app that combines level images together to create an image file of a world.
 
+This is useful for:
+- Quickly adding a map into a game
+- Creating a minimap
+- Sharing in devlogs
+
 How to use:
 - Ensure you've made the level images first; Save your LDtk project with the "Export as PNG" option to "One PNG per level".
 - Open the app. (It may ask permissions. Allow it)
